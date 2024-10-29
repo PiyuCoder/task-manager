@@ -9,6 +9,7 @@ import TaskDetailsModal from "../components/TaskDetailsModal";
 import { logout } from "../features/tasks/userSlice";
 import { useNavigate } from "react-router-dom";
 import { IoPowerSharp } from "react-icons/io5";
+import TaskSearch from "../components/TaskSearch";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -101,6 +102,7 @@ export default function Dashboard() {
             className=" text-2xl text-red-500 hover:text-red-700 cursor-pointer"
             onClick={logoutHandler}
           />
+          {/* <TaskSearch /> */}
         </div>
       )}
 
@@ -127,7 +129,7 @@ export default function Dashboard() {
                 onClick={() => setIsCreatingTask(true)}
                 className="bg-purple-500 text-white py-2 px-4 rounded-lg mb-4 hover:bg-purple-600 transition duration-300"
               >
-                Add Task
+                Add Task <span className=" font-bold text-lg">+</span>
               </button>
             </div>
             <div className=" w-full h-full overflow-x-auto">

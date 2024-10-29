@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../api/axios";
+import { logout } from "./userSlice";
 
 export const createTask = createAsyncThunk(
   "tasks/createTask",
@@ -68,7 +69,7 @@ export const addCommentToTask = createAsyncThunk(
 );
 
 const initialState = {
-  tasks: [], // Task list
+  tasks: [],
   status: "idle",
 };
 
@@ -89,6 +90,9 @@ const tasksSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(logout, (state) => {
+        state.tasks = [];
+      })
       .addCase(createTask.fulfilled, (state, action) => {
         state.tasks.push(action.payload);
       })

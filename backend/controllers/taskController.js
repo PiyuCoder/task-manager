@@ -126,3 +126,18 @@ exports.addComment = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+exports.searchTask = async (req, res) => {
+  try {
+    const { search } = req.query;
+    const tasks = await Task.find({
+      $or: [
+        { taskName: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ],
+    });
+    res.status(200).json({ tasks });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};

@@ -77,7 +77,9 @@ const TaskForm = ({
         onSubmit={handleSubmit}
         className="bg-white p-4 rounded shadow w-96 relative"
       >
-        <h2 className="text-lg font-bold mb-4">Add New Task</h2>
+        <h2 className="text-lg font-bold mb-4">
+          {editing ? "Edit Task" : "Add New Task"}
+        </h2>
         <IoIosClose
           onClick={() =>
             editing ? setIsEditingTask(false) : setIsCreatingTask(false)

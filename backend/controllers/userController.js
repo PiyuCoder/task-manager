@@ -77,7 +77,10 @@ exports.searchUsers = async (req, res) => {
 
   try {
     const users = await User.find({
-      email: { $regex: search, $options: "i" },
+      $or: [
+        { email: { $regex: search, $options: "i" } },
+        { name: { $regex: search, $options: "i" } },
+      ],
     }).limit(10);
 
     res.status(200).json(users);
