@@ -18,7 +18,16 @@ exports.createTask = async (req, res) => {
     });
 
     const savedTask = await newTask.save();
-    res.status(201).json(savedTask);
+    const populatedTask = await Task.findById(savedTask?._id)
+      .populate({
+        path: "assignee",
+        select: "name email",
+      })
+      .populate({
+        path: "createdBy",
+        select: "name email",
+      });
+    res.status(201).json(populatedTask);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -139,5 +148,29 @@ exports.searchTask = async (req, res) => {
     res.status(200).json({ tasks });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.deleteTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+
+    const deletedTask = await Task.findByIdAndDelete(taskId);
+
+    if (!deletedTask) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Task not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Task deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting task:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };

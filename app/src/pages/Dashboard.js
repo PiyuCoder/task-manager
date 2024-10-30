@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { differenceInDays, parseISO } from "date-fns";
-import { fetchTasks } from "../features/tasks/tasksSlice";
+import { deleteTask, fetchTasks } from "../features/tasks/tasksSlice";
 import Loader from "../components/Loader";
 import TaskForm from "../components/TaskForm";
 import ActionMenu from "../components/ActionMenu";
@@ -10,16 +10,20 @@ import { logout } from "../features/tasks/userSlice";
 import { useNavigate } from "react-router-dom";
 import { IoPowerSharp } from "react-icons/io5";
 import TaskSearch from "../components/TaskSearch";
+import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [isEditingTask, setIsEditingTask] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState(""); // Status filter state
+  const [dueDateFilter, setDueDateFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
@@ -47,7 +51,12 @@ export default function Dashboard() {
       ? task.priority === priorityFilter
       : true;
 
-    return matchesQuery && matchesStatus && matchesPriority;
+    const matchesDueDate = dueDateFilter
+      ? new Date(task.dueDate).toLocaleDateString() ===
+        new Date(dueDateFilter).toLocaleDateString()
+      : true;
+
+    return matchesQuery && matchesStatus && matchesPriority && matchesDueDate;
   });
   // Filter tasks with due dates within the next 2 days
   const upcomingTasks = useMemo(() => {
@@ -71,8 +80,24 @@ export default function Dashboard() {
     setIsEditingTask(true);
   };
 
+  const handleCloseModal = () => {
+    setDeleteModalOpen(false);
+  };
+
   const handleDelete = (taskId) => {
-    // dispatch(deleteTask(taskId));
+    setSelectedTaskId(taskId);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setLoading(true);
+    dispatch(deleteTask(selectedTaskId));
+    setSelectedTaskId("");
+    setDeleteModalOpen(false);
+    if (selectedTask) {
+      setSelectedTask(null);
+    }
+    setLoading(false);
   };
 
   const openModal = (task) => {
@@ -132,22 +157,32 @@ export default function Dashboard() {
                 Add Task <span className=" font-bold text-lg">+</span>
               </button>
             </div>
-            <div className=" w-full h-full overflow-x-auto">
-              <div className=" flex items-center justify-between gap-2">
+            <div className=" w-full min-h-screen overflow-x-auto">
+              <div className=" flex lg:items-center justify-between flex-col-reverse lg:flex-row  gap-2">
                 <input
                   type="text"
                   placeholder="Search tasks by name, description, or assignee..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="border rounded p-2 lg:w-96  mb-4 outline-purple-500"
+                  className="border rounded p-2 w-full sm:w-96  mb-4 outline-purple-500"
                 />
                 <div className="flex items-center gap-2">
                   <div>
-                    <label>Status: </label>
+                    <label className=" text-xs sm:text-sm">Due Date: </label>
+                    <input
+                      type="date"
+                      value={dueDateFilter}
+                      onChange={(e) => setDueDateFilter(e.target.value)}
+                      className="border rounded p-2 mb-4 outline-purple-500 text-xs sm:text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs sm:text-sm">Status: </label>
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
-                      className="border rounded p-2 mb-4 outline-purple-500"
+                      className="border rounded p-2 mb-4 outline-purple-500 text-xs sm:text-sm"
                     >
                       <option value="">All</option>
                       <option value="to-do">To-Do</option>
@@ -157,11 +192,11 @@ export default function Dashboard() {
                   </div>
 
                   <div>
-                    <label>Priority: </label>
+                    <label className="text-xs sm:text-sm">Priority: </label>
                     <select
                       value={priorityFilter}
                       onChange={(e) => setPriorityFilter(e.target.value)}
-                      className="border rounded p-2 mb-4"
+                      className="border rounded p-2 mb-4 text-xs sm:text-sm"
                     >
                       <option value="">All</option>
                       <option value="low">Low</option>
@@ -170,6 +205,41 @@ export default function Dashboard() {
                     </select>
                   </div>
                 </div>
+              </div>
+              <div className="flex items-center mb-3 h-8 gap-2">
+                {/* <label>Filters:</label> */}
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="text-xs bg-gray-200 text-gray-700 rounded px-2 py-1 hover:bg-gray-300"
+                  >
+                    Clear Search
+                  </button>
+                )}
+                {statusFilter && (
+                  <button
+                    onClick={() => setStatusFilter("")}
+                    className="text-xs bg-gray-200 text-gray-700 rounded px-2 py-1 hover:bg-gray-300"
+                  >
+                    Clear Status
+                  </button>
+                )}
+                {priorityFilter && (
+                  <button
+                    onClick={() => setPriorityFilter("")}
+                    className="text-xs bg-gray-200 text-gray-700 rounded px-2 py-1 hover:bg-gray-300"
+                  >
+                    Clear Priority
+                  </button>
+                )}
+                {dueDateFilter && (
+                  <button
+                    onClick={() => setDueDateFilter("")}
+                    className="text-xs bg-gray-200 text-gray-700 rounded px-2 py-1 hover:bg-gray-300"
+                  >
+                    Clear Due Date
+                  </button>
+                )}
               </div>
               <table className="w-full border-collapse rounded-lg  shadow-lg">
                 <thead>
@@ -209,11 +279,11 @@ export default function Dashboard() {
                     >
                       <td
                         onClick={() => openModal(task)}
-                        className="border-b border-gray-300 px-4 cursor-pointer py-3 font-medium hover:underline"
+                        className="border-b border-gray-300 px-4 truncate max-w-36 cursor-pointer py-3 font-medium hover:underline"
                       >
                         {task.taskName}
                       </td>
-                      <td className="border-b border-gray-300 px-4 py-3">
+                      <td className="border-b border-gray-300 px-4 py-3 truncate max-w-36">
                         {task.description}
                       </td>
                       <td className="border-b border-gray-300 px-4 py-3 text-center capitalize">
@@ -271,7 +341,7 @@ export default function Dashboard() {
               </table>
             </div>
           </div>
-          <div className="w-96 hidden lg:block h-[500px] border rounded-lg shadow-lg bg-white p-4 overflow-y-auto">
+          <div className="w-96 hidden xl:block h-[500px] border rounded-lg shadow-lg bg-white p-4 overflow-y-auto">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">
               Upcoming Deadlines (Next 2 Days)
             </h3>
@@ -321,6 +391,12 @@ export default function Dashboard() {
           onDelete={handleDelete}
         />
       )}
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

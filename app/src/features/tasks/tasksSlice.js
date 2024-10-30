@@ -68,6 +68,18 @@ export const addCommentToTask = createAsyncThunk(
   }
 );
 
+export const deleteTask = createAsyncThunk(
+  "tasks/deleteTask",
+  async (taskId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.delete(`/api/tasks/${taskId}`);
+      return taskId;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Something went wrong");
+    }
+  }
+);
+
 const initialState = {
   tasks: [],
   status: "idle",
@@ -76,18 +88,6 @@ const initialState = {
 const tasksSlice = createSlice({
   name: "tasks",
   initialState,
-  reducers: {
-    // Reducer to add a new task
-    addTask: (state, action) => {
-      state.tasks.push(action.payload);
-    },
-
-    // Reducer to delete a task
-    deleteTask: (state, action) => {
-      const taskId = action.payload;
-      state.tasks = state.tasks.filter((task) => task.id !== taskId);
-    },
-  },
   extraReducers: (builder) => {
     builder
       .addCase(logout, (state) => {
@@ -117,10 +117,13 @@ const tasksSlice = createSlice({
         if (taskIndex >= 0) {
           state.tasks[taskIndex].comments = comments;
         }
+      })
+      .addCase(deleteTask.fulfilled, (state, action) => {
+        state.tasks = state.tasks.filter(
+          (task) => task?._id !== action.payload
+        );
       });
   },
 });
-
-export const { addTask, deleteTask } = tasksSlice.actions;
 
 export default tasksSlice.reducer;

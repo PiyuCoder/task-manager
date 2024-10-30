@@ -50,7 +50,7 @@ export default function TaskDetailsModal({
                   className=" hover:text-gray-300 cursor-pointer"
                 />
                 <MdDelete
-                  onClick={onDelete}
+                  onClick={() => onDelete(task?._id)}
                   className=" hover:text-gray-300 cursor-pointer"
                 />
               </div>
@@ -58,17 +58,19 @@ export default function TaskDetailsModal({
 
             <div className="text-gray-300">
               <div className="mb-4">
-                <span className="block text-sm font-bold text-white">
+                <span className="block text-sm font-bold text-white truncate">
                   Task Name
                 </span>
-                <p className="text-lg">{task.taskName}</p>
+                <p className="text-lg whitespace-pre-line">{task.taskName}</p>
               </div>
 
               <div className="mb-4">
                 <span className="block text-sm font-bold text-white">
                   Description
                 </span>
-                <p className="text-md">{task.description}</p>
+                <p className="text-md whitespace-pre-line">
+                  {task.description}
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
