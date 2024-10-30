@@ -116,7 +116,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className=" w-full h-full p-5 lg:p-8">
+    <div className=" w-full h-full py-8 p-2 md:p-8">
       {!loading && (
         <div className=" flex items-center gap-2 mb-4">
           <h1 className="text-2xl font-bold ">
@@ -157,8 +157,8 @@ export default function Dashboard() {
                 Add Task <span className=" font-bold text-lg">+</span>
               </button>
             </div>
-            <div className=" w-full min-h-screen overflow-x-auto">
-              <div className=" flex lg:items-center justify-between flex-col-reverse lg:flex-row  gap-2">
+            <div className=" w-full ">
+              <div className=" flex lg:items-center  justify-between flex-col-reverse lg:flex-row  gap-2">
                 <input
                   type="text"
                   placeholder="Search tasks by name, description, or assignee..."
@@ -166,7 +166,7 @@ export default function Dashboard() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="border rounded p-2 w-full sm:w-96  mb-4 outline-purple-500"
                 />
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                   <div>
                     <label className=" text-xs sm:text-sm">Due Date: </label>
                     <input
@@ -241,6 +241,8 @@ export default function Dashboard() {
                   </button>
                 )}
               </div>
+            </div>
+            <div className=" overflow-x-auto min-h-screen w-full">
               <table className="w-full border-collapse rounded-lg  shadow-lg">
                 <thead>
                   <tr className="bg-gray-200 text-gray-700 text-sm font-semibold">

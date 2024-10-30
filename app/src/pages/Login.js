@@ -9,7 +9,7 @@ export default function Login() {
   return (
     <div className=" w-full h-full flex items-center justify-center">
       {loading && <Loader />}
-      <div>
+      <div className=" w-auto h-auto flex items-center justify-center flex-col">
         <Link to={"/"} className=" text-purple-600 font-bold text-3xl px-5">
           <span className="text-lime-500">Task</span>Manager
         </Link>
