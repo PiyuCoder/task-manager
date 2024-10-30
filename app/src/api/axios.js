@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "https://task-manager-2p2o.onrender.com",
 });
 
 axiosInstance.interceptors.request.use(
